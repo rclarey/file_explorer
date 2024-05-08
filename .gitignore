@@ -1,0 +1,6 @@
+*.beam
+*.ez
+*/build
+erl_crash.dump
+/frontend/dist
+/frontend/node_modules
