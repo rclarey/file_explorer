@@ -4,3 +4,4 @@
 erl_crash.dump
 /frontend/dist
 /frontend/node_modules
+/server/.secret_key

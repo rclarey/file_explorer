@@ -1,7 +1,9 @@
-import gleam/erlang/os
+import envoy
+import gleam/erlang
+
 
 pub type Context {
-  Context(env: AppEnv, base_path: String)
+  Context(static_dir: String, fs_base_dir: String)
 }
 
 pub type AppEnv {
@@ -10,9 +12,14 @@ pub type AppEnv {
 }
 
 pub fn init_context() {
-  let env = case os.get_env("APP_ENV") {
+  let env = case envoy.get("APP_ENV") {
     Ok("prod") -> Prod
     _ -> Dev
   }
-  Context(env, "/home/russ")
+  Context(get_static_dir(), "/home/russ")
+}
+
+fn get_static_dir() {
+  let assert Ok(priv_directory) = erlang.priv_directory("server")
+  priv_directory <> "/static"
 }

@@ -1,8 +1,8 @@
-import lustre_http
+import rsvp
 
 pub type Status(a) {
   Loading
-  Failed(lustre_http.HttpError)
+  Failed(rsvp.Error)
   Loaded(a)
 }
 

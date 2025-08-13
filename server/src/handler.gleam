@@ -8,9 +8,9 @@ import simplifile as sf
 import wisp.{type Request, type Response}
 
 import context.{type Context}
-import dir_entry
 import fs
-import path
+import shared/dir_entry
+import shared/path
 
 fn require_param(req: Request, key: String, next: fn(String) -> Response) {
   request.get_query(req)
@@ -24,16 +24,16 @@ fn require_param(req: Request, key: String, next: fn(String) -> Response) {
 pub fn get_directory(req: Request, ctx: Context) {
   use <- wisp.require_method(req, http.Get)
   use p_val <- require_param(req, "p")
-  let dir_path = path.join(ctx.base_path, p_val)
-  case fs.read_directory(dir_path) {
+  let dir_path = path.join(ctx.fs_base_dir, p_val)
+  case fs.read_directory(dir_path, include_hidden: False) {
     Ok(Some(res)) -> {
       json.array(res, dir_entry.to_json)
-      |> json.to_string_builder()
+      |> json.to_string_tree()
       |> wisp.json_response(200)
     }
     Ok(None) -> {
       json.object([#("not_found", json.bool(True))])
-      |> json.to_string_builder()
+      |> json.to_string_tree()
       |> wisp.json_response(404)
     }
     Error(e) -> error_response(e)
@@ -53,7 +53,7 @@ pub fn get_starred(req: Request, _ctx: Context) {
 pub fn get_file(req: Request, ctx: Context) {
   use <- wisp.require_method(req, http.Get)
   use p_val <- require_param(req, "p")
-  let file_path = path.join(ctx.base_path, p_val)
+  let file_path = path.join(ctx.fs_base_dir, p_val)
   case fs.read_file(file_path) {
     Ok(file_path) ->
       wisp.ok()
@@ -62,8 +62,15 @@ pub fn get_file(req: Request, ctx: Context) {
   }
 }
 
-pub fn serve_static(_req: Request, _ctx: Context) {
-  wisp.internal_server_error()
+pub fn serve_static(req: Request, ctx: Context) {
+  let extension = path.file_extension(req.path)
+  let req = case extension {
+    "" -> request.Request(..req, path: "/index.html")
+    _ -> req
+  }
+  echo req
+  use <- wisp.serve_static(req, under: "/", from: ctx.static_dir)
+  wisp.not_found()
 }
 
 fn error_response(err: sf.FileError) {

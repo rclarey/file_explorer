@@ -1,9 +1,18 @@
-import gleam/list
-import gleam/result
-import gleam/string
 import lustre/attribute.{attribute, class, id}
-import lustre/element/html.{img}
 import lustre/element/svg.{defs, mask, path, rect, svg}
+
+import shared/config.{type QuickLinkIcon, Clock, Download, Film, House, Star, Tv}
+
+pub fn for_quick_link(icon: QuickLinkIcon) {
+  case icon {
+    Clock -> clock()
+    Download -> download()
+    Film -> film()
+    House -> house()
+    Star -> star()
+    Tv -> tv()
+  }
+}
 
 pub fn for_mimetype(mimetype: String) {
   case mimetype {
@@ -143,6 +152,42 @@ pub fn left_chevron() {
         attribute(
           "d",
           "M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z",
+        ),
+      ]),
+    ],
+  )
+}
+
+pub fn up_caret() {
+  svg(
+    [
+      attribute("xmlns", "http://www.w3.org/2000/svg"),
+      attribute("viewBox", "0 0 320 512"),
+      class("icon-small"),
+    ],
+    [
+      path([
+        attribute(
+          "d",
+          "M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8H288c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z",
+        ),
+      ]),
+    ],
+  )
+}
+
+pub fn down_caret() {
+  svg(
+    [
+      attribute("xmlns", "http://www.w3.org/2000/svg"),
+      attribute("viewBox", "0 0 320 512"),
+      class("icon-small"),
+    ],
+    [
+      path([
+        attribute(
+          "d",
+          "M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z",
         ),
       ]),
     ],

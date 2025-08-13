@@ -1,3 +1,5 @@
+import gleam/list
+import gleam/result
 import gleam/string
 import gleam/uri
 
@@ -23,7 +25,7 @@ fn relative(path: String) -> String {
 
 fn remove_trailing_slash(path: String) -> String {
   case string.ends_with(path, "/") {
-    True -> string.drop_right(path, 1)
+    True -> string.drop_end(path, 1)
     False -> path
   }
 }
@@ -39,5 +41,15 @@ fn drop_last_item(list: List(item)) -> List(item) {
   case list {
     [] | [_] -> []
     [x, ..xs] -> [x, ..drop_last_item(xs)]
+  }
+}
+
+pub fn file_extension(name: String) -> String {
+  case string.split(name, ".") {
+    [] | [_] | ["", _] -> ""
+    [_, ext] -> ext
+    [_, ..rest] ->
+      list.last(rest)
+      |> result.unwrap("")
   }
 }

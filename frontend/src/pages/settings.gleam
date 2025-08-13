@@ -1,6 +1,8 @@
 import lustre/effect
 import lustre/element/html.{h1, text}
 
+import global
+
 // MODEL
 
 pub type Model {
@@ -22,6 +24,6 @@ pub type Msg {
   SettingsLoaded
 }
 
-pub fn update(model: Model, msg: Msg) {
-  #(model, effect.none())
+pub fn update(global_model: global.Model, model: Model, msg: Msg) {
+  #(global_model, model, effect.none())
 }

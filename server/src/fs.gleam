@@ -1,23 +1,26 @@
+import gleam/erlang
 import gleam/list
 import gleam/option.{None, Some}
 import gleam/result
 import gleam/string
 import simplifile as sf
 
-import dir_entry
 import mimetype
-import path
+import shared/dir_entry
+import shared/path
 
 pub fn get_secret_key(fallback: String) {
-  case sf.read(".secret_key") {
+  let assert Ok(priv_dir) = erlang.priv_directory("server")
+  let key_path = priv_dir <> "/.secret_key"
+  case sf.read(key_path) {
     Error(sf.Enoent) ->
-      sf.write(".secret_key", fallback)
+      sf.write(key_path, fallback)
       |> result.replace(fallback)
     x -> x
   }
 }
 
-pub fn read_directory(dir_path: String) {
+pub fn read_directory(dir_path: String, include_hidden include_hidden: Bool) {
   use <- validate_path(dir_path)
   let res = case sf.read_directory(dir_path) {
     Ok(names) -> Ok(Some(names))
@@ -26,9 +29,14 @@ pub fn read_directory(dir_path: String) {
   }
   use maybe_names <- result.try(res)
   case maybe_names {
-    Some(names) ->
+    Some(names) -> {
+      let names = case include_hidden {
+        False -> list.filter(names, fn (name) { string.first(name) != Ok(".")})
+        True -> names
+      }
       read_entries(dir_path, names)
       |> result.map(Some)
+    }
     None -> Ok(None)
   }
 }
@@ -49,7 +57,7 @@ fn validate_path(dir_path: String, next: fn() -> Result(a, sf.FileError)) {
 fn read_entries(dir_path: String, names: List(String)) {
   list.map(names, fn(name) {
     let ent_path = path.join(dir_path, name)
-    use is_dir <- result.try(sf.verify_is_directory(ent_path))
+    use is_dir <- result.try(sf.is_directory(ent_path))
     use info <- result.try(sf.file_info(ent_path))
     case is_dir {
       True -> {

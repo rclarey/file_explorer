@@ -4,6 +4,7 @@ import gleam/http/response
 import gleam/result
 import mist
 import wisp
+import wisp/wisp_mist
 
 import context
 import fs
@@ -15,7 +16,7 @@ pub fn main() {
   let handler = handle_request(_, context.init_context())
 
   let assert Ok(_) =
-    wisp.mist_handler(handler, secret_key)
+    wisp_mist.handler(handler, secret_key)
     |> mist.new
     |> mist.port(8000)
     |> mist.start_http
